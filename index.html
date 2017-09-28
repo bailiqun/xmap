@@ -1,0 +1,134 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+	
+	<title>Xmap-lite</title>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+
+	<link href="bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="lib/leaflet/leaflet.css"/>
+    <script src="lib/leaflet/leaflet.js"></script>
+	<script src="lib/leaflet/leaflet_smooth_move.js"></script>
+	<script src="lib/leaflet/leaflet_oriented_marker.js"></script>
+
+	<script src="jquery.js"></script>
+	<script src="bootstrap.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<style>
+		#map{
+			width: 600px;
+			height: 500px;
+		}
+	</style>
+	<style>body { padding: 0; margin: 0; } html, body, #map { height: 80%; width: 100%; }</style>
+</head>
+<body>
+<div id='map'></div>
+<script>
+	var map = L.map('map', {
+		crs: L.CRS.Simple,
+        minZoom: -4,
+        maxZoom: 2,
+	});
+    var bounds = [[0,0], [0,0]];
+    var mark_robot_pose = L.orientedMarker([0,0]).addTo(map);
+    var map_overlay = L.imageOverlay('map/map.png', bounds).addTo(map);
+    var path_polyline = L.polyline([[0,0]], {color: 'red',smoothFactor:0.1}).addTo(map);
+
+    var popup = L.popup();
+    var mark_robot_target  = L.circle([-100, -100], {
+        color: 'red',
+        fillColor: '#f03',
+        fillOpacity: 0.5,
+        radius: 10
+    }).addTo(map);
+
+    map.on('click', onMapClick);
+	function onMapClick(e) {
+		var y = e.latlng.lat;
+		var x = e.latlng.lng;
+        mark_robot_pose.bindPopup("<b>hello</b><br>I am running!").openPopup();
+        setTimeout(function(){
+            mark_robot_pose.closePopup();
+		},3000);
+        socket.emit("notification", {
+            "type": 'goal_set',
+            "id": '',
+            "pose": {
+                "px":x,
+                "py":y,
+                "head":0
+            }
+        });
+    }
+
+    var socket = io();
+    setInterval(function(){
+        if(!socket.isClosed)
+            socket.emit("heart_beat");
+    },500);
+
+	//用来完成通知功能
+    socket.on("notification", function (e) {
+        switch(e.type)
+		{
+		    //如果终端上设置了机器人目的地，保证所有终端目的地同时变动
+			case 'goal_set':{
+                mark_robot_target.slideTo([e.pose.py,e.pose.px], {duration:100});
+                break;
+			}
+			case 'robot_map_info':{
+                map_overlay.removeFrom(map);
+			    var x0 = e.info.origin_y/e.info.resolution;
+			    var y0 = e.info.origin_x/e.info.resolution;
+			    var goal_x = e.info.goal_x/e.info.resolution;
+                var goal_y = e.info.goal_y/e.info.resolution;
+                bounds = [[x0,y0], [e.info.height+x0,e.info.width+y0]];//pixel
+                map_overlay = L.imageOverlay('map/map.png', bounds).addTo(map);
+                map.fitBounds(bounds);
+                mark_robot_target.slideTo([goal_y,goal_x],{duration:100});
+                break;
+			}
+			default:
+			    break;
+		}
+    });
+
+    //机器人将信息发送到服务器，服务器转发给所有终端除了机器人，机器人不订阅location,减少流量。
+    socket.on("location", function (e) {
+        switch(e.type)
+        {
+            case 'robot1':{
+                mark_robot_pose.slideTo([e.pose.py,e.pose.px], {duration:100});
+                break;
+            }
+            case 'robot2':
+            default:
+                break;
+        }
+    });
+
+    socket.on("path", function (e) {
+        var points = [];
+		var index =0;
+        path_polyline.removeFrom(map);
+		for(var point in e.path)
+		{
+            var x = e.path[index].x;
+            var y = e.path[index].y;
+		    points[index]=[y,x];
+		    index++;
+		}
+        path_polyline = L.polyline(points, {color: 'red',smoothFactor:0.1}).addTo(map);
+    });
+
+    map.fitBounds(bounds);
+</script>
+
+
+</body>
+</html>
