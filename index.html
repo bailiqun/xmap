@@ -7,54 +7,98 @@
 
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+	<link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico" />
 
-	<link href="bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="lib/leaflet/leaflet.css"/>
-    <script src="lib/leaflet/leaflet.js"></script>
+	<link rel="stylesheet" href="lib/leaflet/leaflet.css"/>
+	<link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="lib/font-awesome/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="lib/leaflet/leaflet-sidebar/src/L.Control.Sidebar.css" />
+
+	<script src="socket.io/socket.io.js"></script>
+	<script src="lib/jquery/jquery-1.12.3.min.js"></script>
+	<script src="lib/bootstrap/js/bootstrap.min.js"></script>
+	<script src="lib/leaflet/leaflet.js"></script>
 	<script src="lib/leaflet/leaflet_smooth_move.js"></script>
 	<script src="lib/leaflet/leaflet_oriented_marker.js"></script>
 
-	<script src="jquery.js"></script>
-	<script src="bootstrap.min.js"></script>
-	<script src="/socket.io/socket.io.js"></script>
 	<style>
 		#map{
-			width: 600px;
+			width:  600px;
 			height: 500px;
 		}
 	</style>
-	<style>body { padding: 0; margin: 0; } html, body, #map { height: 80%; width: 100%; }</style>
+	<style>body { padding: 0; margin: 0; } html, body, #map { height: 90%; width: 100%; }</style>
 </head>
 <body>
 <div id='map'></div>
+<div id="sidebar">
+	<table class="table table-striped">
+		<tbody>
+		<tr>
+			<th><img src='img/speed_24px_1104144_easyicon.net.png'／></th>
+			<th>Velocity(X)</th>
+			<th>Velocity(Y)</th>
+			<th>Velocity(Yaw)</th>
+		</tr>
+		<tr>
+			<td></td>
+			<td id="label_vx">0.0 m/s</td>
+			<td id="label_vy">0.0 m/s</td>
+			<td id="label_vth">0.0 m/s</td>
+		</tr>
+		<tbody>
+		<tr>
+			<th><img src='img/bus_32px_1104059_easyicon.net.png'／></th>
+			<th>label_vx</th>
+			<th>Position(y)</th>
+			<th>Position(Yaw)</th>
+		</tr>
+
+		<tr>
+			<td></td>
+			<td id="label_px"> 0.0 m</td>
+			<td id="label_py"> 0.0 m</td>
+			<td id="label_yaw">0.0 degree</td>
+		</tr>
+	</table>
+</div>
 <script>
 	var map = L.map('map', {
 		crs: L.CRS.Simple,
-        minZoom: -4,
-        maxZoom: 2,
+        minZoom: -2,
+        maxZoom: 0
 	});
-    var bounds = [[0,0], [0,0]];
-    var mark_robot_pose = L.orientedMarker([0,0]).addTo(map);
+    var carIcon = L.icon({
+        iconUrl: 'img/car.png',
+        iconSize:     [60, 60], // size of the icon
+        shadowSize:   [0, 0], // size of the shadow
+        iconAnchor:   [60,60], // point of the icon which will correspond to marker's location
+        shadowAnchor: [60, 60],  // the same for the shadow
+        popupAnchor:  [30,30] // point from which the popup should open relative to the iconAnchor
+    });
+    var bounds = [[0,0], [848,1200]];
+
     var map_overlay = L.imageOverlay('map/map.png', bounds).addTo(map);
-    var path_polyline = L.polyline([[0,0]], {color: 'red',smoothFactor:0.1}).addTo(map);
+    var mark_robot_pose = L.orientedMarker([0,0])
+		.addTo(map);
+    var path_polyline = L.polyline([[0,0]], {color: 'red',smoothFactor:0.1})
+		.addTo(map);
+    var mark_robot_target  = L.circle([0, 0], {color: 'red', fillColor: '#f03', fillOpacity: 0.5, radius: 10})
+		.addTo(map);
 
-    var popup = L.popup();
-    var mark_robot_target  = L.circle([-100, -100], {
-        color: 'red',
-        fillColor: '#f03',
-        fillOpacity: 0.5,
-        radius: 10
-    }).addTo(map);
+    map.setView([0, 0], -1);
+    map.fitBounds(bounds);
 
-    map.on('click', onMapClick);
-	function onMapClick(e) {
+    map.on('click', on_map_click);
+	function on_map_click(e) {
 		var y = e.latlng.lat;
 		var x = e.latlng.lng;
-        mark_robot_pose.bindPopup("<b>hello</b><br>I am running!").openPopup();
-        setTimeout(function(){
-            mark_robot_pose.closePopup();
-		},3000);
+        var random_cat = Math.round(Math.random()*5+1);
+        var contents = `<img src='img/cat_ghost_${random_cat}.png' height='55' width='55'/>`;
+        mark_robot_pose.bindPopup(contents).openPopup();
+		setInterval(function () {
+			mark_robot_pose.closePopup();
+        },3000);
         socket.emit("notification", {
             "type": 'goal_set',
             "id": '',
@@ -82,15 +126,15 @@
                 break;
 			}
 			case 'robot_map_info':{
-                map_overlay.removeFrom(map);
-			    var x0 = e.info.origin_y/e.info.resolution;
-			    var y0 = e.info.origin_x/e.info.resolution;
-			    var goal_x = e.info.goal_x/e.info.resolution;
-                var goal_y = e.info.goal_y/e.info.resolution;
-                bounds = [[x0,y0], [e.info.height+x0,e.info.width+y0]];//pixel
-                map_overlay = L.imageOverlay('map/map.png', bounds).addTo(map);
-                map.fitBounds(bounds);
-                mark_robot_target.slideTo([goal_y,goal_x],{duration:100});
+				map_overlay.removeFrom(map);
+				var x0 = e.info.origin_y / e.info.resolution;
+				var y0 = e.info.origin_x / e.info.resolution;
+				var goal_x = e.info.goal_x / e.info.resolution;
+				var goal_y = e.info.goal_y / e.info.resolution;
+				bounds = [[x0 ,y0], [e.info.height + x0, e.info.width + y0]];//pixel
+				map_overlay = L.imageOverlay('map/map.png', bounds).addTo(map);
+				map.fitBounds(bounds);
+				mark_robot_target.slideTo([goal_y,goal_x],{duration:200});
                 break;
 			}
 			default:
@@ -103,30 +147,40 @@
         switch(e.type)
         {
             case 'robot1':{
-                mark_robot_pose.slideTo([e.pose.py,e.pose.px], {duration:100});
+                //mark_robot_pose.setLatLng([e.pose.py ,e.pose.px]);
+                mark_robot_pose.slideTo([e.pose.py ,e.pose.px], {duration:10});
+
+                $('#label_vx').html(e.vel.vx.toFixed(2) + " m/s");
+                $('#label_vy').html(e.vel.vy.toFixed(2) + " m/s");
+                $('#label_vth').html(e.vel.vth.toFixed(2) + " rad/s");
+
+                $('#label_px').html(e.pose.px.toFixed(2) + " m");
+                $('#label_py').html(e.pose.py.toFixed(2) + " m");
+                $('#label_yaw').html(((e.pose.head)*180/Math.PI).toFixed(2) + " degree");
+
+                //mark_robot_pose.setAngle(-e.pose.head*180/Math.PI);
                 break;
             }
-            case 'robot2':
             default:
                 break;
         }
     });
 
     socket.on("path", function (e) {
-        var points = [];
 		var index =0;
+		var points = [];
         path_polyline.removeFrom(map);
 		for(var point in e.path)
 		{
             var x = e.path[index].x;
             var y = e.path[index].y;
-		    points[index]=[y,x];
+		    points[index] = [y,x];
 		    index++;
 		}
-        path_polyline = L.polyline(points, {color: 'red',smoothFactor:0.1}).addTo(map);
+        path_polyline = L.polyline(points,
+			{weight:4, color: 'red', smoothFactor:0.5, opacity:0.4}).addTo(map);
     });
 
-    map.fitBounds(bounds);
 </script>
 
 
