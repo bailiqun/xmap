@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/html">
 <head>
 	
-	<title>Xmap-lite</title>
+	<title>wellcasa</title>
 
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -96,9 +96,6 @@
         var random_cat = Math.round(Math.random()*5+1);
         var contents = `<img src='img/cat_ghost_${random_cat}.png' height='55' width='55'/>`;
         mark_robot_pose.bindPopup(contents).openPopup();
-		setInterval(function () {
-			mark_robot_pose.closePopup();
-        },3000);
         socket.emit("notification", {
             "type": 'goal_set',
             "id": '',
