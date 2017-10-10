@@ -3,32 +3,21 @@ var app = express();
 var http = require('http').Server(app);
 var uuid = require('node-uuid');
 var io = require('socket.io')(http, {
-    port:80
+    port:3000
 });
 
 require('events').EventEmitter.defaultMaxListeners = Infinity;
 
 app.use('/map',express.static(__dirname+'/public/map'));
+app.use('/img',express.static(__dirname+'/public/img'));
 app.use('/lib',express.static(__dirname+'/lib'));
+app.use('/lib/leaflet/',     express.static(__dirname+'/lib/leaflet/'));
+app.use('/lib/jquery/',      express.static(__dirname+'/lib/jquery-1.12.3/'));
+app.use('/lib/bootstrap/',   express.static(__dirname+'/lib/bootstrap-3.3.5/'));
+app.use('/lib/font-awesome/',express.static(__dirname+'/lib/font-awesome-4.7.0/'));
 
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
-});
-app.get('/jquery.js', function (req, res) {
-    res.sendFile(__dirname + '/lib/js/jquery-1.12.3.min.js');
-});
-app.get('/bootstrap.min.css', function (req, res) {
-    res.sendFile(__dirname + '/lib/bootstrap-3.3.5/css/bootstrap.min.css');
-});
-app.get('/bootstrap.min.js', function (req, res) {
-    res.sendFile(__dirname + '/lib/bootstrap-3.3.5/js/bootstrap.min.js');
-});
-app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/index.html');
-});
-
-app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/client.html');
 });
 
 function io_send_respones(event, type) {
@@ -60,7 +49,7 @@ io.on('connection', function (socket) {
     clientIndex += 1;
     clients.push({ "id": client_uuid, "socket": socket });
     console.log('[%s] client connected, remain %d users', client_uuid,clients.length);
-    io_send_respones('notification','robot_map_info_req')
+    io_send_respones('notification','robot_map_info_req');
 
     /*-------只是连接还没开始发送心跳----------*/
     heart_beat_timer = setTimeout(function(){
@@ -68,7 +57,7 @@ io.on('connection', function (socket) {
         clearTimeout(heart_beat_timer);
     },5000);
 
-    /*----------------开始发送心跳-------------*/
+    /*--------------开始发送心跳-------------*/
     socket.on('heart_beat', function(){
         clearTimeout(heart_beat_timer);
         heart_beat_timer = setTimeout(function(){
@@ -79,12 +68,7 @@ io.on('connection', function (socket) {
 
     //机器人端发送位置信息到pose_get
     socket.on('pose_upload', function (message) {
-        var px  =  message.pose.px;
-        var py  =  message.pose.py;
-        var head = message.pose.head;
-        var id   = message.id;
-        var type = message.type;
-        io_send_pose('location',type, id, px, py, head);
+        io.emit('location',message);
     });
 
     socket.on('path', function (message) {
@@ -160,6 +144,6 @@ io.on('connection', function (socket) {
     });
 });
 
-http.listen(80, function () {
-    console.log('listening on *:80');
+http.listen(3000, function () {
+    console.log('listening on *:3000');
 });
