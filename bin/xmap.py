@@ -1,28 +1,26 @@
 #! /usr/bin/env python
 #-*-coding:utf-8-*-
+from threading import Thread
+
 import rospy
-import roslib
+import tf
 from geometry_msgs.msg import Twist
 from move_base_msgs.msg import MoveBaseActionGoal
-from nav_msgs.msg import Odometry
 from nav_msgs.msg import OccupancyGrid
 from nav_msgs.msg import Path
-import tf
-import math
-from threading import Timer,Thread
-import time
-import json
-from socketIO_client import SocketIO, LoggingNamespace
+from socketIO_client import SocketIO
 
-goal_pose = {'px':0,'py':0,'head':0}
 map_info = {}
 path_info = {}
 GLOBAL_VAR = {}
+goal_pose = {'px':0,'py':0,'head':0}
+GLOBAL_VAR['vel']={'vx':0,'vy':0,'vth':0}
+GLOBAL_VAR['pose']={'px':0,'py':0,'yaw':0}
 
 class IOHelper():
 
     def __init__(self):
-        self.__io = SocketIO("localhost", 80, wait_for_connection=True)
+        self.__io = SocketIO("192.168.3.19", 3000, wait_for_connection=True)
         self.__connected = False
 
         self.__threads = []
@@ -42,9 +40,10 @@ class IOHelper():
             t.setDaemon(True)
             t.start()
 
-    def upload_pose(self,x,y,head):
-        self.__io.emit('pose_upload', {'type': 'robot1', 'id': '1', 'pose':
-            {'px': x, 'py': y, 'head': head}})
+    def upload_pose(self, x, y, yaw, vx, vy, vth):
+        self.__io.emit('pose_upload', {'type': 'robot1', 'id': '1',
+        'pose': {'px': x, 'py': y, 'head': yaw},
+        'vel' : {'vx':vx, 'vy':vy, 'vth' :vth}})
 
     def upload_info(self,info):
         if len(info) :
@@ -101,23 +100,32 @@ def global_path_callback(data):
     if len_path >= 10:
         gap = int(len_path / 10.0 + 0.5)
     path = data.poses[::gap]
-    #construct path json data
     json_data = []
     for i in range(len(path)):
-        json_data.append({'x':path[i].pose.position.x/map_info['resolution'],
-                   'y':path[i].pose.position.y/map_info['resolution']})
+        json_data.append(
+            {'x':path[i].pose.position.x/map_info['resolution'],
+             'y':path[i].pose.position.y/map_info['resolution']})
+    #target point
+    json_data.append({'x':goal_pose['px']/map_info['resolution'],
+                      'y':goal_pose['py']/map_info['resolution']})
     GLOBAL_VAR['io'].upload_path(json_data,len(path))
 
+def vel_callback(data):
+    GLOBAL_VAR['vel']={
+        "vx" : data.linear.x,
+        "vy" : data.linear.y,
+        "vth": data.angular.z};
+
 if __name__ == "__main__":
-    #socketio instance register
+    rospy.init_node('xmap_robot_sender',anonymous=True)
     io = IOHelper()
     GLOBAL_VAR['io']=io
     io.event('notification', on_notification_respose)
-    rospy.init_node('xmap_robot_sender',anonymous=True)
-    #register publisher to GLOBAL,for reason need time for first publish
+
     publisher = rospy.Publisher('/move_base/goal', MoveBaseActionGoal, queue_size=1)
     GLOBAL_VAR['goal_publisher'] = publisher
     rospy.Subscriber("map", OccupancyGrid, map_callback)
+    rospy.Subscriber("/mobile_base/commands/velocity", Twist, vel_callback)
     rospy.Subscriber("/move_base/NavfnROS/plan", Path, global_path_callback)
     #tf transform
     listener = tf.TransformListener()
@@ -128,6 +136,12 @@ if __name__ == "__main__":
             (trans, rot) = listener.lookupTransform('/map', '/base_link', rospy.Time(0))
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             continue
-        io.upload_pose(trans[0]/map_info['resolution'],trans[1]/map_info['resolution'],rot[2])
+        io.upload_pose(trans[0]/map_info['resolution'],# position x
+                       trans[1]/map_info['resolution'],# position y
+                       rot[2],# Yaw
+                       GLOBAL_VAR['vel']['vx'],
+                       GLOBAL_VAR['vel']['vy'],
+                       GLOBAL_VAR['vel']['vth'],
+        )
         io.notify_heartbeat();
         rate.sleep()
