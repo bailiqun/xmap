@@ -20,6 +20,7 @@
 	<script src="lib/leaflet/leaflet.js"></script>
 	<script src="lib/leaflet/leaflet_smooth_move.js"></script>
 	<script src="lib/leaflet/leaflet_oriented_marker.js"></script>
+	<script src="lib/leaflet/leaflet-control-credits.js"></script>
 
 	<style>
 		#map{
@@ -68,18 +69,18 @@
         minZoom: -2,
         maxZoom: 0
 	});
-    var carIcon = L.icon({
-        iconUrl: 'img/car.png',
-        iconSize:     [60, 60], // size of the icon
+    var indicatorIcon = L.icon({
+        iconUrl: 'img/indicator.png',
+        iconSize:     [56, 40], // size of the icon
         shadowSize:   [0, 0], // size of the shadow
-        iconAnchor:   [60,60], // point of the icon which will correspond to marker's location
-        shadowAnchor: [60, 60],  // the same for the shadow
-        popupAnchor:  [30,30] // point from which the popup should open relative to the iconAnchor
+        iconAnchor:   [28,20], // point of the icon which will correspond to marker's location
+        shadowAnchor: [0, 0],  // the same for the shadow
+        popupAnchor:  [0,-20] // point from which the popup should open relative to the iconAnchor
     });
     var bounds = [[0,0], [848,1200]];
 
     var map_overlay = L.imageOverlay('map/map.png', bounds).addTo(map);
-    var mark_robot_pose = L.orientedMarker([0,0])
+    var mark_robot_pose = L.orientedMarker([0,0],{icon:indicatorIcon})
 		.addTo(map);
     var path_polyline = L.polyline([[0,0]], {color: 'red',smoothFactor:0.1})
 		.addTo(map);
@@ -155,7 +156,7 @@
                 $('#label_py').html(e.pose.py.toFixed(2) + " m");
                 $('#label_yaw').html(((e.pose.head)*180/Math.PI).toFixed(2) + " degree");
 
-                //mark_robot_pose.setAngle(-e.pose.head*180/Math.PI);
+                mark_robot_pose.setAngle(-e.pose.head*180/Math.PI);
                 break;
             }
             default:
