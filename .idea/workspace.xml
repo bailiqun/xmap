@@ -1,33 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d26bab26-fa90-427b-912e-b9753e519da1" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/._.DS_Store" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/.npmignore" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/.travis.yml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/.travis/deploy.sh" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/.travis/deploy_key.pem.enc" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/CHANGELOG.md" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/LICENSE" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/README.md" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/bower.json" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/examples/bootstrap.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/examples/index.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/examples/listing-markers.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/examples/two-sidebars.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/gulpfile.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/leaflet-sidebar.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/package.json" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/src/L.Control.Sidebar.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/src/L.Control.Sidebar.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/lib/leaflet/leaflet-sidebar/src/L.Control.Sidebar.scss" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/routes/index.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/server.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/shotcut.gif" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bin/xmap.py" afterPath="$PROJECT_DIR$/bin/xmap.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/index.html" afterPath="$PROJECT_DIR$/index.html" />
-    </list>
+    <list default="true" id="d26bab26-fa90-427b-912e-b9753e519da1" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
     <ignored path="$PROJECT_DIR$/tmp/" />
@@ -63,8 +37,8 @@
       <file leaf-file-name="server.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/server.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1851">
-              <caret line="132" column="42" lean-forward="true" selection-start-line="132" selection-start-column="42" selection-end-line="132" selection-end-column="42" />
+            <state relative-caret-position="2103">
+              <caret line="132" column="42" lean-forward="false" selection-start-line="132" selection-start-column="42" selection-end-line="132" selection-end-column="42" />
               <folding />
             </state>
           </provider>
@@ -165,7 +139,7 @@
   <component name="NodeModulesDirectoryManager">
     <handled-path value="$PROJECT_DIR$/node_modules" />
   </component>
-  <component name="ProjectFrameBounds">
+  <component name="ProjectFrameBounds" extendedState="1">
     <option name="x" value="348" />
     <option name="y" value="80" />
     <option name="width" value="1397" />
@@ -290,14 +264,16 @@
       <workItem from="1507798010315" duration="2963000" />
       <workItem from="1508050789930" duration="16000" />
       <workItem from="1508051019490" duration="19000" />
+      <workItem from="1508051171824" duration="37000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="121897000" />
+    <option name="totallyTimeSpent" value="121934000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="348" y="80" width="1397" height="781" extended-state="0" />
+    <frame x="348" y="80" width="1397" height="781" extended-state="1" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2505431" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -583,8 +559,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1851">
-          <caret line="132" column="42" lean-forward="true" selection-start-line="132" selection-start-column="42" selection-end-line="132" selection-end-column="42" />
+        <state relative-caret-position="2103">
+          <caret line="132" column="42" lean-forward="false" selection-start-line="132" selection-start-column="42" selection-end-line="132" selection-end-column="42" />
           <folding />
         </state>
       </provider>
